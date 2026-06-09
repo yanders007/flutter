@@ -51,6 +51,10 @@ dev_dependencies:
 
 # The following section is specific to Flutter packages.
 flutter:
+dependencies:
+  flutter:
+    sdk: flutter
+  transparent_image: ^2.0.1 
 
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
