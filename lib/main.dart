@@ -64,6 +64,37 @@ class _MyHomePageState extends State<MyHomePage> {
     });
 
   }
+
+void calculer() {
+  if (display.contains("+")) {
+    List<String> parties = display.split("+");
+
+    double resultat = 0;
+
+    for (String nombre in parties) {
+      resultat += double.parse(nombre);
+    }
+
+    setState(() {
+      display = resultat.toString();
+    });
+
+     if (display.contains("-")) {
+    List<String> parties = display.split("-");
+
+    double resultat = double.parse(parties[0]);
+
+    for (int i = 1; i < parties.length; i++) {
+      resultat -= double.parse(parties[i]);
+    }
+
+    setState(() {
+      display = resultat.toString();
+    });
+  }
+  }
+}
+
   void supp() {
     setState(() {
       if (display.isNotEmpty) {
@@ -106,6 +137,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 buildButton("4", () => appendNumber("4")),
                 buildButton("5", () => appendNumber("5")),
                 buildButton("6", () => appendNumber("6")),
+                buildButton("+", () => appendNumber("+")),
                 
               ],
             ),
@@ -116,6 +148,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 buildButton("7", () => appendNumber("7")),
                 buildButton("8", () => appendNumber("8")),
                 buildButton("9", () => appendNumber("9")),
+                buildButton("-", () => appendNumber("-")),
               ],
             ),
             Row (mainAxisAlignment: MainAxisAlignment.center,
@@ -123,6 +156,7 @@ class _MyHomePageState extends State<MyHomePage> {
               buildButton("0", () => appendNumber("0")),
               buildButton(",", () => appendNumber(".")),
               buildButton("AC",clearAll) ,
+              buildButton("=", calculer),
               ],),
           ],
         ),
