@@ -1,0 +1,3 @@
+-keep class io.flutter.** { *; }
+-keep class androidx.** { *; }
+-keep class com.google.** { *; }
