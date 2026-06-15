@@ -25,10 +25,10 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         // This is the theme of your application.
-       
+
         colorScheme: ColorScheme.fromSeed(
-  seedColor: Colors.deepPurple,
-),
+          seedColor: Colors.deepPurple,
+        ),
       ),
       home: const MyHomePage(title: 'Calculatrice'),
     );
@@ -42,8 +42,6 @@ class MyHomePage extends StatefulWidget {
   // that it has a State object (defined below) that contains fields that affect
   // how it looks.
 
-  
-
   final String title;
 
   @override
@@ -54,65 +52,63 @@ class _MyHomePageState extends State<MyHomePage> {
   String display = "";
 
   void clearAll() {
-  setState(() {
-    display = "";
-  });
-}
+    setState(() {
+      display = "";
+    });
+  }
+
   void appendNumber(String number) {
     setState(() {
       display += number;
     });
-
   }
 
-void calculer() {
-  if (display.contains("+")) {
-    List<String> parties = display.split("+");
+  void calculer() {
+    if (display.contains("+")) {
+      List<String> parties = display.split("+");
 
-    double resultat = 0;
+      double resultat = 0;
 
-    for (String nombre in parties) {
-      resultat += double.parse(nombre);
+      for (String nombre in parties) {
+        resultat += double.parse(nombre);
+      }
+
+      setState(() {
+        display = resultat.toString();
+      });
+    } else if (display.contains("-")) {
+      List<String> parties = display.split("-");
+      double resultat = double.parse(parties[0]);
+
+      for (int i = 1; i < parties.length; i++) {
+        resultat -= double.parse(parties[i]);
+      }
+
+      setState(() {
+        display = resultat.toString();
+      });
     }
-
-    setState(() {
-      display = resultat.toString();
-    });
-
-     if (display.contains("-")) {
-    List<String> parties = display.split("-");
-
-    double resultat = double.parse(parties[0]);
-
-    for (int i = 1; i < parties.length; i++) {
-      resultat -= double.parse(parties[i]);
-    }
-
-    setState(() {
-      display = resultat.toString();
-    });
   }
-  }
-}
 
   void supp() {
     setState(() {
       if (display.isNotEmpty) {
         display = display.substring(0, display.length - 1);
-        }
+      }
 
-    if (display.isEmpty) {
-      display = "";
-    }
-  });
-}
+      if (display.isEmpty) {
+        display = "";
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.title),
       ),
-            body: Center(
+      body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -120,17 +116,15 @@ void calculer() {
               display,
               style: const TextStyle(fontSize: 40),
             ),
-
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 buildButton("1", () => appendNumber("1")),
                 buildButton("2", () => appendNumber("2")),
                 buildButton("3", () => appendNumber("3")),
-                 buildButton("del", supp),
+                buildButton("del", supp),
               ],
             ),
-
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -138,10 +132,8 @@ void calculer() {
                 buildButton("5", () => appendNumber("5")),
                 buildButton("6", () => appendNumber("6")),
                 buildButton("+", () => appendNumber("+")),
-                
               ],
             ),
-
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -151,13 +143,15 @@ void calculer() {
                 buildButton("-", () => appendNumber("-")),
               ],
             ),
-            Row (mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              buildButton("0", () => appendNumber("0")),
-              buildButton(",", () => appendNumber(".")),
-              buildButton("AC",clearAll) ,
-              buildButton("=", calculer),
-              ],),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                buildButton("0", () => appendNumber("0")),
+                buildButton(",", () => appendNumber(".")),
+                buildButton("AC", clearAll),
+                buildButton("=", calculer),
+              ],
+            ),
           ],
         ),
       ),
