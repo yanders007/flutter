@@ -29,7 +29,8 @@ android {
         release {
             signingConfig = signingConfigs.getByName("debug")
 
-            isMinifyEnabled = true
+            // ✅ SAFE POUR GITHUB ACTIONS
+            isMinifyEnabled = false
             isShrinkResources = true
 
             proguardFiles(
@@ -40,10 +41,8 @@ android {
     }
 }
 
-kotlin {
-    compilerOptions {
-        jvmTarget = org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17
-    }
+dependencies {
+    implementation("com.google.android.play:core:1.10.3")
 }
 
 flutter {
