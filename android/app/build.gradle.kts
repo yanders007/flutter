@@ -29,8 +29,8 @@ android {
         release {
             signingConfig = signingConfigs.getByName("debug")
 
-            // ✅ SAFE POUR GITHUB ACTIONS
-            isMinifyEnabled = false
+            // Optimisation APK
+            isMinifyEnabled = true
             isShrinkResources = true
 
             proguardFiles(
