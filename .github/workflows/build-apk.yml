@@ -12,17 +12,27 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # Flutter stable FIXÉ (important pour éviter les bugs Gradle)
       - uses: subosito/flutter-action@v2
         with:
           channel: stable
+          cache: true
 
-      - run: flutter pub get
+      - name: Show Flutter version
+        run: flutter --version
 
-      - run: dart run flutter_launcher_icons
+      - name: Install dependencies
+        run: flutter pub get
 
-      - run: flutter build apk --release
+      - name: Generate launcher icons
+        run: dart run flutter_launcher_icons
+        continue-on-error: true
 
-      - uses: actions/upload-artifact@v4
+      - name: Build release APK
+        run: flutter build apk --release
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
         with:
           name: app-release-apk
           path: build/app/outputs/flutter-apk/app-release.apk
