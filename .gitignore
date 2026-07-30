@@ -1,0 +1,45 @@
+# Dart / Flutter
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub-cache/
+.pub/
+build/
+*.g.dart
+*.freezed.dart
+
+# Android
+android/app/keystore.jks
+android/key.properties
+android/.gradle/
+android/local.properties
+android/captures/
+android/gradle/wrapper/gradle-wrapper.jar
+*.ap_
+*.iml
+
+# IntelliJ / Android Studio
+*.iml
+.idea/
+*.ipr
+*.iws
+
+# VS Code
+.vscode/
+*.code-workspace
+
+# macOS
+.DS_Store
+**/.DS_Store
+
+# Coverage
+coverage/
+lcov.info
+
+# Environment
+.env
+*.env.local
+
+# Generated files
+lib/generated/
