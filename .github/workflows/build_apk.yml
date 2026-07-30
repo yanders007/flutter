@@ -1,14 +1,5 @@
 # ============================================================
 # Anderson CVE — GitHub Actions CI/CD
-# Builds a signed release APK on every push to main and on
-# version tags (v*.*.*). Artifacts are uploaded for download.
-#
-# Required GitHub Secrets (Settings → Secrets → Actions):
-#   KEYSTORE_BASE64      — base64-encoded .jks keystore file
-#   KEY_STORE_PASSWORD   — keystore password
-#   KEY_ALIAS            — key alias inside the keystore
-#   KEY_PASSWORD         — key password
-#   NIST_NVD_API_KEY     — (optional) higher NVD rate limits
 # ============================================================
 
 name: Build & Release APK
@@ -51,16 +42,12 @@ jobs:
           channel: stable
           cache: true
 
-      - name: Download real gradle-wrapper.jar
+      - name: Download gradle-wrapper.jar
         run: |
           mkdir -p android/gradle/wrapper
           curl -fsSL \
             "https://github.com/gradle/gradle/raw/v8.4.0/gradle/wrapper/gradle-wrapper.jar" \
-            -o android/gradle/wrapper/gradle-wrapper.jar \
-            || wget -q \
-            "https://github.com/gradle/gradle/raw/v8.4.0/gradle/wrapper/gradle-wrapper.jar" \
-            -O android/gradle/wrapper/gradle-wrapper.jar
-          echo "gradle-wrapper.jar size: $(wc -c < android/gradle/wrapper/gradle-wrapper.jar) bytes"
+            -o android/gradle/wrapper/gradle-wrapper.jar
 
       - name: Make gradlew executable
         run: chmod +x android/gradlew
@@ -79,12 +66,16 @@ jobs:
       - name: Run tests
         run: flutter test
 
-  # ── Job 2: Build Debug APK (PRs + feature branches) ─────
+  # ── Job 2: Build Debug APK ───────────────────────────────
+  # Déclenché par : push, PR, OU bouton "Run workflow"
   build_debug:
     name: Build Debug APK
     runs-on: ubuntu-latest
     needs: test
-    if: github.event_name == 'pull_request' || (github.event_name == 'push' && !startsWith(github.ref, 'refs/tags/'))
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      github.event_name == 'pull_request' ||
+      (github.event_name == 'push' && !startsWith(github.ref, 'refs/tags/'))
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -113,8 +104,9 @@ jobs:
 
       - name: Write local.properties
         run: |
+          FLUTTER_PATH=$(dirname $(which flutter))
           echo "sdk.dir=$ANDROID_HOME" > android/local.properties
-          echo "flutter.sdk=$(which flutter | sed 's|/bin/flutter||')" >> android/local.properties
+          echo "flutter.sdk=${FLUTTER_PATH%/bin}" >> android/local.properties
 
       - name: Install dependencies
         run: flutter pub get
@@ -128,16 +120,19 @@ jobs:
       - name: Upload debug APK
         uses: actions/upload-artifact@v4
         with:
-          name: anderson-cve-debug-${{ github.sha }}
+          name: anderson-cve-debug-${{ github.run_number }}
           path: build/app/outputs/flutter-apk/app-debug.apk
           retention-days: 7
 
-  # ── Job 3: Build Release APK (main + tags) ───────────────
+  # ── Job 3: Build Release APK ─────────────────────────────
+  # Déclenché par : push sur main OU tag v*.*.*
   build_release:
     name: Build Release APK
     runs-on: ubuntu-latest
     needs: test
-    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/'))
+    if: >-
+      github.event_name == 'push' &&
+      (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/'))
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -166,8 +161,8 @@ jobs:
 
       - name: Write local.properties
         run: |
-          echo "sdk.dir=$ANDROID_HOME" > android/local.properties
           FLUTTER_PATH=$(dirname $(which flutter))
+          echo "sdk.dir=$ANDROID_HOME" > android/local.properties
           echo "flutter.sdk=${FLUTTER_PATH%/bin}" >> android/local.properties
 
       - name: Install dependencies
@@ -198,7 +193,7 @@ jobs:
             --dart-define=NIST_NVD_API_KEY=${NIST_NVD_API_KEY:-""} \
             --split-per-abi
 
-      - name: Build App Bundle (Play Store)
+      - name: Build App Bundle
         run: |
           flutter build appbundle \
             --release \
@@ -207,7 +202,7 @@ jobs:
       - name: Upload release APKs
         uses: actions/upload-artifact@v4
         with:
-          name: anderson-cve-release-${{ github.sha }}
+          name: anderson-cve-release-${{ github.run_number }}
           path: |
             build/app/outputs/flutter-apk/app-arm64-v8a-release.apk
             build/app/outputs/flutter-apk/app-armeabi-v7a-release.apk
@@ -217,11 +212,11 @@ jobs:
       - name: Upload App Bundle
         uses: actions/upload-artifact@v4
         with:
-          name: anderson-cve-bundle-${{ github.sha }}
+          name: anderson-cve-bundle-${{ github.run_number }}
           path: build/app/outputs/bundle/release/app-release.aab
           retention-days: 30
 
-  # ── Job 4: GitHub Release (tags only) ────────────────────
+  # ── Job 4: GitHub Release (tags v*.*.* uniquement) ───────
   release:
     name: Create GitHub Release
     runs-on: ubuntu-latest
@@ -238,13 +233,13 @@ jobs:
       - name: Download release APKs
         uses: actions/download-artifact@v4
         with:
-          name: anderson-cve-release-${{ github.sha }}
+          name: anderson-cve-release-${{ github.run_number }}
           path: ./release-apks
 
       - name: Download App Bundle
         uses: actions/download-artifact@v4
         with:
-          name: anderson-cve-bundle-${{ github.sha }}
+          name: anderson-cve-bundle-${{ github.run_number }}
           path: ./release-bundle
 
       - name: Generate changelog
@@ -276,13 +271,13 @@ jobs:
             ### Téléchargements
             | Fichier | Architecture |
             |---------|-------------|
-            | `app-arm64-v8a-release.apk` | ARM64 — téléphones modernes (recommandé) |
+            | `app-arm64-v8a-release.apk` | ARM64 — téléphones modernes ✅ |
             | `app-armeabi-v7a-release.apk` | ARM 32-bit — anciens appareils |
             | `app-x86_64-release.apk` | x86_64 — émulateurs |
             | `app-release.aab` | App Bundle — Play Store |
 
             ### Confidentialité
-            Mode **Zero-Trust Storage** — aucune donnée de scan n'est écrite sur l'appareil.
+            Mode **Zero-Trust Storage** — aucune donnée écrite sur l'appareil.
           files: |
             ./release-apks/*.apk
             ./release-bundle/*.aab
