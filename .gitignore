@@ -13,9 +13,11 @@ build/
 android/app/keystore.jks
 android/key.properties
 android/.gradle/
-android/local.properties
+# local.properties is committed as a CI template (no secrets inside)
+# android/local.properties
 android/captures/
-android/gradle/wrapper/gradle-wrapper.jar
+# gradle-wrapper.jar is committed intentionally (required for CI)
+# android/gradle/wrapper/gradle-wrapper.jar
 *.ap_
 *.iml
 

@@ -1,0 +1,38 @@
+name: anderson_cve
+description: Anderson CVE - Mobile vulnerability scanner for web technologies
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.2.0 <4.0.0'
+  flutter: '>=3.16.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  
+  # HTTP & Parsing
+  http: ^1.2.0
+  html: ^0.15.4
+  
+  # In-App WebView (headless JS evaluation)
+  flutter_inappwebview: ^6.0.0
+  
+  # State management (ephemeral / in-memory only)
+  flutter_riverpod: ^2.5.1
+  
+  # UI
+  cupertino_icons: ^1.0.6
+  google_fonts: ^6.2.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+  mockito: ^5.4.4
+  build_runner: ^2.4.8
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/icons/
